@@ -52,7 +52,6 @@ void signal_callback_handler(int signum) {
 /**
  * Valid keys for playing
  */
-
 bool execute_keyboard( uint8_t board[SIZE][SIZE], uint32_t* score, char c){
 	bool success = false;
 
@@ -101,6 +100,8 @@ int main(int argc, char *argv[]) {
 	propagation_t propagation=max;
 	bool slow = false;
 
+	output_t *op;
+
 	/**
 	 * Parsing command line options
 	 */
@@ -143,44 +144,46 @@ int main(int argc, char *argv[]) {
 	 * Create initial state
 	 */
 	initBoard(board, &score);
+	op = output_start(!CSV_MODE);
 	
 	while (true) {
 		/**
 		 * AI execution mode
 		 */
 		if(ai_run){
-		/**
-		 * ****** HERE IS WHERE YOUR SOLVER IS CALLED
-		 */
-		move_t selected_move = get_next_move( board, max_depth, propagation );
+			/**
+			 * ****** HERE IS WHERE YOUR SOLVER IS CALLED
+			 */
+			move_t selected_move = get_next_move( board, max_depth, propagation, op );
+			printf("move to execute %d\n", selected_move);	
+			/**
+			 * Execute the selected action
+			 */
+			success = execute_move_t( board, &score, selected_move);
 
-		/**
-		 * Execute the selected action
-		 */
-		success = execute_move_t( board, &score, selected_move);		    		    
 		}
 		else{
-		/**
-		 * Keyboard execution mode
-		 */
-		c=getchar();
-		success = execute_keyboard(board, &score, c);
-		if (c=='q') {
-			printf("        QUIT? (y/n)         \n");
+			/**
+			 * Keyboard execution mode
+			 */
 			c=getchar();
-			if (c=='y') {
-			break;
+			success = execute_keyboard(board, &score, c);
+			if (c=='q') {
+				printf("        QUIT? (y/n)         \n");
+				c=getchar();
+				if (c=='y') {
+				break;
+				}
+				drawBoard(board,score);
 			}
-			drawBoard(board,score);
-		}
-		if (c=='r') {
-			printf("       RESTART? (y/n)       \n");
-			c=getchar();
-			if (c=='y') {
-			initBoard(board, &score);
+			if (c=='r') {
+				printf("       RESTART? (y/n)       \n");
+				c=getchar();
+				if (c=='y') {
+				initBoard(board, &score);
+				}
+				drawBoard(board,score);
 			}
-			drawBoard(board,score);
-		}
 		}		
 
 		/**
@@ -188,25 +191,27 @@ int main(int argc, char *argv[]) {
 		 * then, add a random tile and redraw the board
 		 */
 		if (success) {
-		
-		drawBoard(board,score);
+			printf("move executed\n");
+			
+			drawBoard(board,score);
 
-		if(slow) usleep(150000); //0.15 seconds
+			if(slow) usleep(150000); //0.15 seconds
 
-		addRandom(board);
-		drawBoard(board,score);
-		
-		if (gameEnded(board)) {
-			printf("         GAME OVER          \n");
-			break;
-		}
+			addRandom(board);
+			drawBoard(board,score);
+			
+			if (gameEnded(board)) {
+				printf("         GAME OVER          \n");
+				break;
+			}
 		}
 
 	}
 	
+	output_end(*op, board, score, max_depth);
 	setBufferedInput(true);
 
-	printf("\033[?25h\033[m");
+	//printf("\033[?25h\033[m");
 
 	
 	return EXIT_SUCCESS;

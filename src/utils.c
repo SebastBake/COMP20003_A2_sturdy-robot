@@ -30,7 +30,7 @@ void getColor(uint8_t value, char *color, size_t length) {
 void drawBoard(uint8_t board[SIZE][SIZE], uint32_t score) {
 	uint8_t x,y;
 	char color[40], reset[] = "\033[m";
-	printf("\033[H");
+	//printf("\033[H");
 
 	printf("2048.c %17d pts\n\n",score);
 
@@ -65,8 +65,8 @@ void drawBoard(uint8_t board[SIZE][SIZE], uint32_t score) {
 		printf("\n");
 	}
 	printf("\n");
-	printf("        ←,↑,→,↓ or q        \n");
-	printf("\033[A"); // one line up
+	//printf("        ←,↑,→,↓ or q        \n");
+	//printf("\033[A"); // one line up
 }
 
 uint8_t findTarget(uint8_t array[SIZE],uint8_t x,uint8_t stop) {

@@ -11,7 +11,7 @@ void heap_init(struct heap* h)
 		h->heaparr[i]=NULL;
 	
 	if(!h->heaparr) {
-		printf("Error allocatinga memory...\n");
+		printf("Error allocating memory...\n");
 		exit(-1);
 	}
 

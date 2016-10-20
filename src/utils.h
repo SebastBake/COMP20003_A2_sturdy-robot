@@ -14,6 +14,7 @@
 
 #define SIZE 4
 #define _XOPEN_SOURCE 500
+#define N_MOVES 4
 
 /**
 * Move type
@@ -35,7 +36,7 @@ typedef enum propagation{
 
 
 /**
- * Renders the board
+ * Renders thpe board
  */
 void drawBoard(uint8_t board[SIZE][SIZE], uint32_t score);
 
