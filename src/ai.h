@@ -8,8 +8,8 @@
 
 #define EPS 1e-6
 #define FILENAME "output.txt"
+#define FILENAME_EXP "output.txt"
 #define CSV_PRINTMODE 1
-#define PRINTMODE CSV_PRINTMODE
 
 
 
@@ -41,6 +41,7 @@ int scores_choose(scores_t scores, propagation_t propagation);
 void printscores(scores_t * scores, int depth, propagation_t propagation);
 
 // Handle output
+void output_head(int depth, propagation_t propagation);
 output_t *output_start(int mode);
 void output_add_generated(output_t *op);
 void output_add_expanded(output_t *op);

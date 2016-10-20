@@ -11,7 +11,7 @@
 #include "ai.h"
 #include "utils.h"
 
-#define PRINTMODE !CSV_PRINTMODE
+#define PRINTMODE CSV_PRINTMODE
 
 
 /**
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 	uint32_t score=0;	
 	uint8_t board[SIZE][SIZE];
 
-	int max_depth=0;
+	int max_depth=0,i;
 	
 	char c;
 	bool success;
@@ -139,75 +139,85 @@ int main(int argc, char *argv[]) {
 	
 	signal(SIGINT, signal_callback_handler);	
 	setBufferedInput(false);
-
-	/**
-	 * Create initial state
-	 */
-	initBoard(board, &score);
-	op = output_start(PRINTMODE);
+	//output_head(max_depth, propagation); 
+	printf("\n");
 	
-	while (true) {
+	for (i=0;i<50;i++) {
+
 		/**
-		 * AI execution mode
+		 * Create initial state
 		 */
-		if(ai_run){
+		initBoard(board, &score);
+		if (ai_run) {
+			op = output_start(PRINTMODE);
+		}
+		
+		while (true) {
 			/**
-			 * ****** HERE IS WHERE YOUR SOLVER IS CALLED
+			 * AI execution mode
 			 */
-			move_t selected_move = get_next_move( board, max_depth, propagation, op );
-			printf("move to execute %d\n", selected_move);	
+			if(ai_run){
+				/**
+				 * ****** HERE IS WHERE YOUR SOLVER IS CALLED
+				 */
+				move_t selected_move = get_next_move( board, max_depth, propagation, op );
+				printf("move to execute %d\n", selected_move);	
+				/**
+				 * Execute the selected action
+				 */
+				success = execute_move_t( board, &score, selected_move);
+
+			}
+			else{
+				/**
+				 * Keyboard execution mode
+				 */
+				c=getchar();
+				success = execute_keyboard(board, &score, c);
+				if (c=='q') {
+					printf("        QUIT? (y/n)         \n");
+					c=getchar();
+					if (c=='y') {
+					break;
+					}
+					drawBoard(board,score);
+				}
+				if (c=='r') {
+					printf("       RESTART? (y/n)       \n");
+					c=getchar();
+					if (c=='y') {
+					initBoard(board, &score);
+					}
+					drawBoard(board,score);
+				}
+			}		
+
 			/**
-			 * Execute the selected action
+			 * If selected action merges tiles,
+			 * then, add a random tile and redraw the board
 			 */
-			success = execute_move_t( board, &score, selected_move);
+			if (success) {
+				printf("move executed\n");
+				
+				drawBoard(board,score);
+
+				if(slow) usleep(150000); //0.15 seconds
+
+				addRandom(board);
+				drawBoard(board,score);
+				
+				if (gameEnded(board)) {
+					printf("         GAME OVER          \n");
+					break;
+				}
+			}
 
 		}
-		else{
-			/**
-			 * Keyboard execution mode
-			 */
-			c=getchar();
-			success = execute_keyboard(board, &score, c);
-			if (c=='q') {
-				printf("        QUIT? (y/n)         \n");
-				c=getchar();
-				if (c=='y') {
-				break;
-				}
-				drawBoard(board,score);
-			}
-			if (c=='r') {
-				printf("       RESTART? (y/n)       \n");
-				c=getchar();
-				if (c=='y') {
-				initBoard(board, &score);
-				}
-				drawBoard(board,score);
-			}
-		}		
-
-		/**
-		 * If selected action merges tiles,
-		 * then, add a random tile and redraw the board
-		 */
-		if (success) {
-			printf("move executed\n");
-			
-			drawBoard(board,score);
-
-			if(slow) usleep(150000); //0.15 seconds
-
-			addRandom(board);
-			drawBoard(board,score);
-			
-			if (gameEnded(board)) {
-				printf("         GAME OVER          \n");
-				output_end(*op, board, score, max_depth);
-				break;
-			}
+		if (ai_run) {
+			output_end(*op, board, score, max_depth);
 		}
 	}
-	
+
 	setBufferedInput(true);
 
 	//printf("\033[?25h\033[m");

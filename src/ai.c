@@ -151,7 +151,27 @@ void propogate_back(node_t *node) {
 	}
 }
 
-
+/**
+ * Handles the file output
+ */
+void output_head(int depth, propagation_t propagation) {
+	FILE *fp;
+	fp = fopen(FILENAME_EXP, "a");
+	if (propagation == max) {
+		fprintf(fp, "propagation: max,depth: %d\n", depth);
+	} else {
+		fprintf(fp, "propagation: avg,depth: %d\n", depth);
+	}
+	fprintf(fp, "max_depth\t");
+	fprintf(fp, "max_tile\t");
+	fprintf(fp, "score\t");
+	fprintf(fp, "time\t");
+	fprintf(fp, "generated\t");
+	fprintf(fp, "expanded\t");
+	fprintf(fp, "expanded/second\n");
+	fflush(fp);
+	fclose(fp);
+}
 /**
  * Handles the file output
  */
@@ -162,22 +182,11 @@ output_t *output_start(int mode) {
 		printf("Error allocating memory...\n");
 		exit(-1);
 	}
+	op->fp = fopen(FILENAME_EXP, "a");
 	op->mode = mode;
 	op->start_time = clock();
-	op->fp = fopen(FILENAME, "a");
 	op->generated=0;
 	op->expanded=0;
-	// Print the things
-	if (op->mode == CSV_PRINTMODE) {
-		fprintf(op->fp, "max_depth, ");
-		fprintf(op->fp, "max_tile, ");
-		fprintf(op->fp, "score, ");
-		fprintf(op->fp, "time, ");
-		fprintf(op->fp, "generated, ");
-		fprintf(op->fp, "expanded, ");
-		fprintf(op->fp, "expanded/millisecond\n");
-		fflush(op->fp);
-	}
 	return op;
 }
 
@@ -206,12 +215,12 @@ void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
 
 	// Print the things
 	if (op.mode == CSV_PRINTMODE) {
-		fprintf(op.fp, "%d, ", depth);
-		fprintf(op.fp, "%d, ", (int)pow(2,max));
-		fprintf(op.fp, "%d, ", score);
-		fprintf(op.fp, "%.4f, ", elapsed/1000);
-		fprintf(op.fp, "%llu, ", op.generated);
-		fprintf(op.fp, "%llu, ", op.expanded);
+		fprintf(op.fp, "%d\t", depth);
+		fprintf(op.fp, "%d\t", (int)pow(2,max));
+		fprintf(op.fp, "%d\t", score);
+		fprintf(op.fp, "%.4f\t", elapsed/1000);
+		fprintf(op.fp, "%llu\t", op.generated);
+		fprintf(op.fp, "%llu\t", op.expanded);
 		fprintf(op.fp, "%.2f\n", expanded_p_sec);
 		fflush(op.fp);
 		fclose(op.fp);
@@ -222,7 +231,7 @@ void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
 		fprintf(op.fp, "time: %.4f\n", elapsed/1000);
 		fprintf(op.fp, "generated: %llu\n", op.generated);
 		fprintf(op.fp, "expanded: %llu\n", op.expanded);
-		fprintf(op.fp, "expanded/millisecond: %.2f", expanded_p_sec);
+		fprintf(op.fp, "expanded/second: %.2f", expanded_p_sec);
 		fflush(op.fp);
 		fclose(op.fp);
 	}
