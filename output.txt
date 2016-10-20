@@ -1,7 +1,0 @@
-max depth: 7
-max tile: 1024
-score: 16008
-time: 4.7900
-generated: 8209145
-expanded: 8210077
-expanded/second: 1714.00
