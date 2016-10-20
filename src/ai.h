@@ -8,7 +8,9 @@
 
 #define EPS 1e-6
 #define FILENAME "output.txt"
-#define CSV_MODE 1
+#define CSV_PRINTMODE 1
+#define PRINTMODE CSV_PRINTMODE
+
 
 
 typedef struct scoreholder {

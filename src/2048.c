@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	printf("\033[?25l\033[2J");
+	//printf("\033[?25l\033[2J");
 
 	/**
 	 *  register signal handler for when ctrl-c is pressed
@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 	 * Create initial state
 	 */
 	initBoard(board, &score);
-	op = output_start(!CSV_MODE);
+	op = output_start(PRINTMODE);
 	
 	while (true) {
 		/**

@@ -164,9 +164,20 @@ output_t *output_start(int mode) {
 	}
 	op->mode = mode;
 	op->start_time = clock();
-	op->fp = fopen(FILENAME, "w");
+	op->fp = fopen(FILENAME, "a");
 	op->generated=0;
 	op->expanded=0;
+	// Print the things
+	if (op->mode == CSV_PRINTMODE) {
+		fprintf(op->fp, "max_depth, ");
+		fprintf(op->fp, "max_tile, ");
+		fprintf(op->fp, "score, ");
+		fprintf(op->fp, "time, ");
+		fprintf(op->fp, "generated, ");
+		fprintf(op->fp, "expanded, ");
+		fprintf(op->fp, "expanded/millisecond\n");
+		fflush(op->fp);
+	}
 	return op;
 }
 
@@ -194,15 +205,27 @@ void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
 	expanded_p_sec = op.expanded/elapsed;
 
 	// Print the things
-	fprintf(op.fp, "max depth: %d\n", depth);
-	fprintf(op.fp, "max tile: %d\n", (int)pow(2,max));
-	fprintf(op.fp, "score: %d\n", score);
-	fprintf(op.fp, "time: %.4f\n", elapsed/1000);
-	fprintf(op.fp, "generated: %llu\n", op.generated);
-	fprintf(op.fp, "expanded: %llu\n", op.expanded);
-	fprintf(op.fp, "expanded/millisecond: %.2f", expanded_p_sec);
-	fflush(op.fp);
-	fclose(op.fp);
+	if (op.mode == CSV_PRINTMODE) {
+		fprintf(op.fp, "%d, ", depth);
+		fprintf(op.fp, "%d, ", (int)pow(2,max));
+		fprintf(op.fp, "%d, ", score);
+		fprintf(op.fp, "%.4f, ", elapsed/1000);
+		fprintf(op.fp, "%llu, ", op.generated);
+		fprintf(op.fp, "%llu, ", op.expanded);
+		fprintf(op.fp, "%.2f\n", expanded_p_sec);
+		fflush(op.fp);
+		fclose(op.fp);
+	} else {
+		fprintf(op.fp, "max depth: %d\n", depth);
+		fprintf(op.fp, "max tile: %d\n", (int)pow(2,max));
+		fprintf(op.fp, "score: %d\n", score);
+		fprintf(op.fp, "time: %.4f\n", elapsed/1000);
+		fprintf(op.fp, "generated: %llu\n", op.generated);
+		fprintf(op.fp, "expanded: %llu\n", op.expanded);
+		fprintf(op.fp, "expanded/millisecond: %.2f", expanded_p_sec);
+		fflush(op.fp);
+		fclose(op.fp);
+	}
 }
 
 
