@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
 			
 			if (gameEnded(board)) {
 				printf("         GAME OVER          \n");
-				output_end(*op, board, score, max_depth);
+				output_end(*op, board, score, max_depth, 1, propagation);
 				break;
 			}
 		}

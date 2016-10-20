@@ -140,7 +140,6 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, signal_callback_handler);	
 	setBufferedInput(false);
 	//output_head(max_depth, propagation); 
-	printf("\n");
 	
 	for (i=0;i<50;i++) {
 
@@ -214,9 +213,15 @@ int main(int argc, char *argv[]) {
 
 		}
 		if (ai_run) {
-			output_end(*op, board, score, max_depth);
+			output_end(*op, board, score, max_depth, i+1, propagation);
 		}
 	}
+
+	FILE *fp;
+	fp = fopen(FILENAME_EXP, "a");
+	fprintf(fp, "\n");
+	fflush(fp);
+	fclose(fp);
 
 	setBufferedInput(true);
 

@@ -198,10 +198,10 @@ void output_add_expanded(output_t *op) {
 	op->expanded++;
 }
 
-void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
+void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth, int trial, propagation_t propagation) {
 	int i,j,max=0;
 	double elapsed;
-	double expanded_p_sec;
+	double expanded_p_millisec;
 
 	elapsed = (clock()-op.start_time)*1000 / CLOCKS_PER_SEC;
 	for (i=0;i<SIZE;i++) {
@@ -211,17 +211,19 @@ void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
 			}
 		}
 	}
-	expanded_p_sec = op.expanded/elapsed;
+	expanded_p_millisec = op.expanded/elapsed;
 
 	// Print the things
 	if (op.mode == CSV_PRINTMODE) {
+		fprintf(op.fp, "%d\t", trial);
+		fprintf(op.fp, "%d\t", (int)propagation);
 		fprintf(op.fp, "%d\t", depth);
 		fprintf(op.fp, "%d\t", (int)pow(2,max));
 		fprintf(op.fp, "%d\t", score);
 		fprintf(op.fp, "%.4f\t", elapsed/1000);
 		fprintf(op.fp, "%llu\t", op.generated);
 		fprintf(op.fp, "%llu\t", op.expanded);
-		fprintf(op.fp, "%.2f\n", expanded_p_sec);
+		fprintf(op.fp, "%.2f\n", expanded_p_millisec);
 		fflush(op.fp);
 		fclose(op.fp);
 	} else {
@@ -231,7 +233,7 @@ void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth) {
 		fprintf(op.fp, "time: %.4f\n", elapsed/1000);
 		fprintf(op.fp, "generated: %llu\n", op.generated);
 		fprintf(op.fp, "expanded: %llu\n", op.expanded);
-		fprintf(op.fp, "expanded/second: %.2f", expanded_p_sec);
+		fprintf(op.fp, "expanded/millisecond: %.2f", expanded_p_millisec);
 		fflush(op.fp);
 		fclose(op.fp);
 	}
@@ -283,7 +285,7 @@ move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t pr
 					new->num_childs=0;
 					new->depth = tmp->depth+1;
 					new->parent = tmp;
-					if (tmp->parent==NULL) {
+					if (new->parent->parent==NULL) {
 						new->move = i;
 					} else {
 						new->move = tmp->move;	
@@ -296,6 +298,8 @@ move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t pr
 					free(new);
 				}
 			}
+		} else {
+			free(tmp);
 		}
 	}
 
@@ -303,9 +307,9 @@ move_t get_next_move( uint8_t board[SIZE][SIZE], int max_depth, propagation_t pr
 
 	// Free up remaining memory from the simulation
 	emptyPQ(&h);
-	free(start);
+	//free(tmp);
 	if (max_depth!=0) {
-		free(tmp);
+		free(start);
 	}
 
 	return (move_t)scores_choose(scores, propagation);

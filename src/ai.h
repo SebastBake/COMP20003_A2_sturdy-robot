@@ -45,6 +45,6 @@ void output_head(int depth, propagation_t propagation);
 output_t *output_start(int mode);
 void output_add_generated(output_t *op);
 void output_add_expanded(output_t *op);
-void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth);
+void output_end(output_t op, uint8_t board[SIZE][SIZE], int score, int depth, int trial, propagation_t propagation);
 
 #endif
